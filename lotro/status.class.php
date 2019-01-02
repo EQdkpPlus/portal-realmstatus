@@ -49,9 +49,6 @@ if (!class_exists('lotro_realmstatus')){
 		* for details of this class
 		*/
 
-		/* URL to load realmstatus from */
-		private $lotro_url = 'http://lux-hdro.de/serverstatus-rss.php?';
-
 		/* cache time in seconds default 10 minutes = 600 seconds */
 		private $cachetime = 600;
 
@@ -187,7 +184,17 @@ if (!class_exists('lotro_realmstatus')){
 		*/
 		private function loadStatus($servername){
 			$this->puf->checkURL_first = true;
-			$xml_string = $this->puf->fetch($this->lotro_url.urlencode(utf8_strtolower($servername)).'=1');
+			
+			$xml_string = $this->puf->post("http://moria.gls.lotro.com/GLS.DataCenterServer/Service.asmx", '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:gls="http://www.turbine.com/SE/GLS">
+   <soap:Header/>
+   <soap:Body>
+      <gls:GetDatacenterStatus>
+         <!--Optional:-->
+         <gls:game>LOTRO</gls:game>
+      </gls:GetDatacenterStatus>
+   </soap:Body>
+</soap:Envelope>', 'application/soap+xml;charset=UTF-8;action="http://www.turbine.com/SE/GLS/GetDatacenterStatus"');
+			
 			if ($xml_string)
 				return $this->parseXML($xml_string, $servername);
 
@@ -203,20 +210,30 @@ if (!class_exists('lotro_realmstatus')){
 		* @return string ('up', 'down', 'unknown')
 		*/
 		private function parseXML($xml_string, $servername){
-			if (!empty($xml_string)){
-				// parse xml
-				$xml = simplexml_load_string($xml_string);
-				if ($xml !== false && $xml->channel->item){
-					foreach($xml->channel->item as $item){
-						$strDesc = $item->description;
-						if (strpos($strDesc, $servername) === 0){
-							$string = substr($strDesc, strlen($servername)+2);
-							if (strpos($string, 'offen') === 0) return "up";
-							if (strpos($string, 'zu') === 0) return "down";
-						}
+
+			$clean_xml = str_ireplace(['SOAP-ENV:', 'SOAP:'], '', $xml_string);
+			$xml = simplexml_load_string($clean_xml);
+			
+			try {
+				$arrServers = $xml->Body->GetDatacenterStatusResponse->GetDatacenterStatusResult;
+				
+				foreach($arrServers->StatusServerResult as $val){
+					$strServerinfos = $val->Results;
+					$arrServerinfos = simplexml_load_string($strServerinfos);
+					
+					$strServername = (string)$arrServerinfos->name;
+					$strWorldFull = (string)$arrServerinfos->world_full;
+
+					if (strpos($strServername, $servername) !== false){
+						if($strWorldFull == "false") return "up";
+						return "down";
 					}
 				}
+				
+			} catch (Exception $e){
+				
 			}
+
 			return 'unknown';
 		}
 	}
