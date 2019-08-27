@@ -117,7 +117,7 @@ if (!class_exists("wowstatus_style_gdi"))
       $do_cache = false;
 
       // try to load data from cache
-      $realm_status = $this->pdc->get('portal.module.realmstatus.wow.gdi', false, true);
+     $realm_status = $this->pdc->get('portal.module.realmstatus.wow.gdi', false, true);
 
       // if either no cache, realmname not in list or realm status has changed, update the image
       if (!$realm_status ||
@@ -147,8 +147,9 @@ if (!class_exists("wowstatus_style_gdi"))
      */
     private function createImage($realmname, $realmdata)
     {
+
       // get status
-      switch ($realmdata['status'])
+      switch ((int)$realmdata['status'])
       {
         case 0:  $status = 'down';    break;
         case 1:  $status = 'up';      break;
@@ -159,16 +160,21 @@ if (!class_exists("wowstatus_style_gdi"))
       // TODO: check if offline is available
       if ($status == 'down')
         $population = 'offline';
-      else
-        $population = strtolower($realmdata['population']);
+        else {
+        	switch (strtolower($realmdata['population']))
+        	{
+        		case 'full':  $population = 'max';    break;
+        		case 'high':  $population = 'high';    break;
+        		case 'medium':  $population = 'medium';    break;
+        		case 'low':  $population = 'low';    break;
+        	}
+        }
+
 
       // get type
-      switch ($realmdata['type'])
+      switch (strtolower($realmdata['type']))
       {
-        case 'pve':   $type = 'PvE';    break;
-        case 'pvp':   $type = 'PvP';    break;
-        case 'rp':    $type = 'RP';     break;
-        case 'rppvp': $type = 'RP PvP'; break;
+        case 'roleplaying':    $type = 'RP';     break;
         default:      $type = '';       break;
       }
 

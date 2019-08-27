@@ -73,18 +73,17 @@ if (!class_exists("wowstatus_style_normal"))
         {
           // set "tr" div
           $output .= '<div class="tr">';
-
           // output status
-          switch ($realmdata['status'])
+          switch ((int)$realmdata['status'])
           {
-            case 'up':
+            case 1:
               $output .= '<div class="td"><img src="'.$this->image_path.'up.png" alt="Online" title="'.$realmname.'" /></div>';
               break;
-            case 'down':
+            case 0:
               $output .= '<div class="td"><img src="'.$this->image_path.'down.png" alt="Offline" title="'.$realmname.'" /></div>';
               break;
             default:
-              $output .= '<div class="td"><img src="'.$this->image_path.'down.png" alt="Offline" title="'.$realmname.' ('.$this->user->lang('rs_unknown').')" /></div>';
+              $output .= '<div class="td"><i class="fa fa-lg fa-question" title="'.$realmname.' ('.$this->user->lang('rs_unknown').')" /></i></div>';
               break;
           }
 
@@ -92,22 +91,10 @@ if (!class_exists("wowstatus_style_normal"))
           $output .= '<div class="td">'.$realmname.'</div>';
 
           // output server type
-          switch ($realmdata['type'])
+          switch (strtolower($realmdata['type']))
           {
-            case 'pvp':
-              $output .= '<div class="td rs_wow_pvp">PvP</div>';
-              break;
-            case 'rppvp':
-              $output .= '<div class="td rs_wow_rppvp">RP-PvP</div>';
-              break;
-            case 'rp':
+            case 'roleplaying':
               $output .= '<div class="td rs_wow_rp">RP</div>';
-              break;
-            case 'pve':
-              $output .= '<div class="td rs_wow_pve">PvE</div>';
-              break;
-            default:
-              $output .= '<div class="td">'.$this->user->lang('rs_unknown').'</div>';
               break;
           }
 
