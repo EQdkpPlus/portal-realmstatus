@@ -124,7 +124,27 @@ if (!class_exists('wowclassic_realmstatus')){
 		private function loadStatus($servername){
 			$arrRealms = $this->pdc->get('portal.module.realmstatus.wowclassic.json', false, true);
 			if ($arrRealms === null){
-				$mixResult = register('urlfetcher')->post('https://worldofwarcraft.com/graphql', '{"operationName":"GetInitialRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-eu"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"7b3ba73c1458c52eec129aaf0c64d8be62f5496754f1143f8147da317fdd2417"}}}', 'application/json');
+				$strRealmLocation = $this->config->get('uc_server_loc');
+				
+				switch($strRealmLocation){
+					case 'us':  $strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-us"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"b668cd9bb522d534eb99fcacc46ccbe3824b98dc10b61a08d4ae149bee9caa70"}}}';
+						break;
+						
+					case 'kr':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-kr"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"b668cd9bb522d534eb99fcacc46ccbe3824b98dc10b61a08d4ae149bee9caa70"}}}';
+						break;
+						
+					case 'tw':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"tw"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"b668cd9bb522d534eb99fcacc46ccbe3824b98dc10b61a08d4ae149bee9caa70"}}}';
+						break;
+					
+					default:
+					case 'eu': $strData = '{"operationName":"GetInitialRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-eu"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"7b3ba73c1458c52eec129aaf0c64d8be62f5496754f1143f8147da317fdd2417"}}}';
+						break;
+				}
+				
+				
+				
+				$mixResult = register('urlfetcher')->post('https://worldofwarcraft.com/graphql', $strData, 'application/json');
+				
 				if($mixResult){
 					$arrJson = json_decode($mixResult, true);
 					$arrRealms = $arrJson['data']['Realms'];

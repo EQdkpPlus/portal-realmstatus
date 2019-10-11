@@ -104,7 +104,7 @@ if (!class_exists("wowstatus_style_normal"))
             	break;
           }
           
-          $output .= '<div class="td"><i class="fa fa-users"></i> '.ucfirst($realmdata['population']).'</div>';
+          $output .= '<div class="td nowrap"><i class="fa fa-users"></i> '.ucfirst($realmdata['population']).'</div>';
 
           // close "tr" div
           $output .= '</div>';
