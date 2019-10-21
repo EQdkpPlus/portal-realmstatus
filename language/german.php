@@ -45,4 +45,9 @@ $lang['rs_realm_status_error']		= "Fehler beim Ermitteln des Serverstatus für %
 $lang['rs_loading']					= 'Lade Status...';
 $lang['rs_loading_error']			= 'Fehler beim Laden des Status.';
 
+$lang['realmstatus_wow_population_new'] = 'Empfohlen';
+$lang['realmstatus_wow_population_low'] = 'Niedrig';
+$lang['realmstatus_wow_population_medium'] = 'Mittel';
+$lang['realmstatus_wow_population_high'] = 'Hoch';
+
 ?>

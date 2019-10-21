@@ -77,35 +77,37 @@ if (!class_exists("wowstatus_style_normal"))
           switch ((int)$realmdata['status'])
           {
             case 1:
-              $output .= '<div class="td"><i class="fa fa-lg fa-check-circle" style="color: green;"></i></div>';
+              $output .= '<div class="td" style="width: 28px;"><i class="fa fa-lg fa-check-circle" style="color: green; font-size: 32px;"></i></div>';
               break;
             case 0:
-              $output .= '<div class="td"><i class="fa fa-lg fa-times-circle" style="color: red;"></i></div>';
+              $output .= '<div class="td" style="width: 28px;"><i class="fa fa-lg fa-times-circle" style="color: red; font-size: 32px;"></i></div>';
               break;
             default:
-              $output .= '<div class="td"><i class="fa fa-lg fa-question" title="'.$realmname.' ('.$this->user->lang('rs_unknown').')" /></i></div>';
+              $output .= '<div class="td" style="width: 28px;"><i class="fa fa-lg fa-question" style="font-size: 32px;" title="'.$realmname.' ('.$this->user->lang('rs_unknown').')" /></i></div>';
               break;
           }
 
           // output realm name
-          $output .= '<div class="td">'.$realmname.'</div>';
+          $output .= '<div class="td">'.$realmname.'<div class="small">';
 
           // output server type
           switch (strtolower($realmdata['type']))
           {
             case 'roleplaying':
-              $output .= '<div class="td rs_wow_rp">RP</div>';
+              $output .= 'RP';
               break;
             case 'pvp':
-            	$output .= '<div class="td rs_wow_pvp">PvP</div>';
+            	$output .= 'PvP';
             	break;
             case 'normal':
-            	$output .= '<div class="td rs_wow_pve">PvE</div>';
+            	$output .= 'PvE';
             	break;
           }
           
-          $output .= '<div class="td nowrap"><i class="fa fa-users"></i> '.ucfirst($realmdata['population']).'</div>';
+          $output .= ' &bull; <i class="fa fa-users"></i> '.$this->user->lang('realmstatus_wow_population_'.$realmdata['population']).'</div>';
 
+          $output .= '</div>';
+          
           // close "tr" div
           $output .= '</div>';
         }

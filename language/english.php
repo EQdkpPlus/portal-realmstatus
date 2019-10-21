@@ -46,7 +46,10 @@ $lang = array(
 	"rs_realm_status_error" => 'Errors occured while determing realmstatus for %1$s',
 	"rs_loading" => 'Loading Status...',
 	"rs_loading_error" => 'Failed to load Status.',
-	
+	'realmstatus_wow_population_new'=> 'New',
+	'realmstatus_wow_population_low'=> 'Low',
+	'realmstatus_wow_population_medium'=> 'Medium',
+	'realmstatus_wow_population_high'=> 'High',
 );
 
 ?>
