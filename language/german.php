@@ -49,5 +49,5 @@ $lang['realmstatus_wow_population_new'] = 'Empfohlen';
 $lang['realmstatus_wow_population_low'] = 'Niedrig';
 $lang['realmstatus_wow_population_medium'] = 'Mittel';
 $lang['realmstatus_wow_population_high'] = 'Hoch';
-
+$lang['realmstatus_wow_population_full'] = 'Voll';
 ?>
