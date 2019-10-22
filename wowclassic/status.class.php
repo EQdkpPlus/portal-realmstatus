@@ -159,7 +159,7 @@ if (!class_exists('wowclassic_realmstatus')){
 							'type'			=> ($arrRealmData['type']['slug'] == 'rp') ? 'roleplaying' : $arrRealmData['type']['slug'],
 							'queue'			=> '',
 							'status'		=> $arrRealmData['online'],
-							'population'	=> $arrRealmData['population']['slug'],
+							'population'	=> (strlen($arrRealmData['population']['slug'])) ? $arrRealmData['population']['slug'] : 'unknown',
 							'name'			=> $servername,
 							'slug'			=> $arrRealmData['slug'],
 					);
