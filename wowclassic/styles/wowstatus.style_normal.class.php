@@ -103,9 +103,10 @@ if (!class_exists("wowstatus_style_normal"))
             	$output .= 'PvE';
             	break;
           }
-          
-          $output .= ' &bull; <i class="fa fa-users"></i> '.$this->user->lang('realmstatus_wow_population_'.$realmdata['population']).'</div>';
 
+          if(strlen($realmdata['population']) && $realmdata['population'] != "error"){
+          	$output .= ' &bull; <i class="fa fa-users"></i> '.$this->user->lang('realmstatus_wow_population_'.$realmdata['population']).'</div>';
+          }
           $output .= '</div>';
           
           // close "tr" div

@@ -52,6 +52,7 @@ $lang = array(
 	'realmstatus_wow_population_high'=> 'High',
 	'realmstatus_wow_population_full'=> 'Full',
 	'realmstatus_wow_population_unknown'=> 'Unknown',
+	'realmstatus_wow_population_locked'=> 'Locked',
 );
 
 ?>
