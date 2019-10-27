@@ -182,17 +182,9 @@ if (!class_exists('wowclassic_realmstatus')){
 		*/
 		private function initStyle(){
 			$file_style_normal = $this->root_path.'portal/realmstatus/wowclassic/styles/wowstatus.style_normal.class.php';
-			$file_style_gdi    = $this->root_path.'portal/realmstatus/wowclassic/styles/wowstatus.style_gdi.class.php';
-
-			// include the files
 			include_once($file_style_normal);
-			include_once($file_style_gdi);
 
-			// get class
-			if ($this->config->get('gd', 'pmod_'.$this->moduleID))
-				$this->style = registry::register('wowstatus_style_gdi');
-			else
-				$this->style = registry::register('wowstatus_style_normal');
+			$this->style = registry::register('wowstatus_style_normal');
 		}
 	}
 }
