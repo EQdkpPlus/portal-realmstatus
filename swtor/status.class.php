@@ -126,25 +126,17 @@ if (!class_exists('swtor_realmstatus')){
 					}
 
 					// get server type
-					if ($serverdata['type'] == ''){
-						$type = $this->user->lang('rs_unknown');
-						$country_div = '';
-					}else{
+					
 						$type = $serverdata['type'];
 
 						// set country
-						$country_flag = $this->getCountryFlag($serverdata['language']);
-						$country_title = $serverdata['region'] == 'us' ? $serverdata['language'].' ('.$serverdata['timezone'].')' : $serverdata['language'];
-						$country_div = '<img src="'.$this->env->link.'images/flags/'.$country_flag.'.svg" alt="'.$country_title.'" title="'.$country_title.'"/>';
-					}
+						$country_flag = $this->getCountryFlag($serverdata['region']);
+						$country_title = $serverdata['region'] == 'us' ? 'US' : 'EU';
+						$country_div = '<img src="'.$this->env->link.'images/flags/'.$country_flag.'.svg" alt="'.$country_title.'" class="country-flag" style="max-height:24px;" title="'.$country_title.'"/>';
 
-					$output .= '<div class="rs_swtor_status rs_swtor_'.$status.'">
-									<div class="rs_swtor_detail roundbox">
-										<div class="rs_swtor_country">'.$country_div.'</div>
-										<div class="rs_swtor_type">'.$type.'</div>
-										<div class="rs_swtor_name nowrap">'.$servername.'</div>
-									</div>
-								</div>';
+
+					$output .= '<div class="rs_swtor_name nowrap">'.$servername.' - '.$country_div.' '.$country_title.'</div>
+								<div class="rs_swtor_status rs_swtor_'.$status.'"></div>';
 				}
 			}
 			return $output;
@@ -159,7 +151,6 @@ if (!class_exists('swtor_realmstatus')){
 				padding-left:  10px;
 				padding-top:   159px;
 				padding-right: 10px;
-				height:        41px;
 				margin-top:    2px;
 				margin-bottom: 2px;
 			}
@@ -181,8 +172,6 @@ if (!class_exists('swtor_realmstatus')){
 			}
 
 			.rs_swtor_detail {
-				background: none repeat scroll 0 0 rgba(10, 10, 10, 0.6);
-				border:     solid 1px #777777;
 				padding:    5px 10px;
 				margin:     3px;
 			}
@@ -255,51 +244,42 @@ if (!class_exists('swtor_realmstatus')){
 
 			// load html page
 			$html = $this->puf->fetch($this->status_url);
+			
 			if (!$html || empty($html))
 				return $servers;
+			
+			$dom = DOMDocument::loadHTML($html);
 
-			// create new swtor html class
-			require_once($this->root_path.'portal/realmstatus/swtor/swtor_html.class.php');
-			$swtor_html = new swtor_html($html);
-
-			// get the server lists
-			$server_list_us = $swtor_html->getServerListUS();
-			$server_list_eu = $swtor_html->getServerListEU();
-
-			if (!$server_list_us || !$server_list_eu)
-				return $servers;
-
-			// process the server lists
-			$servers_us = $server_list_us->getServers();
-			if (is_array($servers_us)){
-				foreach ($servers_us as $server){
-					$servers[$server->name] = array(
-						'status'		=> $server->status,
-						'population'	=> intval($server->population),
-						'type'			=> $server->type,
-						'timezone'		=> $server->timezone,
-						'language'		=> 'US',
-						'region'		=> $server->region,
-					);
+			
+			$finder = new DomXPath($dom);
+			$classname = "serverBody";
+			$nodes = $finder->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $classname ')]");
+			
+			$servers = array();
+			
+			foreach ($nodes as $key => $node) {
+				$status = $node->getAttribute('data-status');
+				$status = strtolower($status);
+				$childs = $node->childNodes;
+				$i = 0;
+				foreach($childs as $child){
+					$i++;
+					if($i == 4) {
+						$servername = $child->textContent;
+						
+						$servers[$servername] = array(
+								'status'		=> $status,
+								'region'		=> ($key > 3) ? 'eu' : 'us',
+						);
+						
+						break;
+					}
 				}
-			}
+			}		
+			
+			
+			if (!count($servers)) return array();
 
-			$servers_eu = $server_list_eu->getServers();
-			if (is_array($servers_eu)){
-				foreach ($servers_eu as $server){
-					$servers[$server->name] = array(
-						'status'		=> $server->status,
-						'population'	=> intval($server->population),
-						'type'			=> $server->type,
-						'timezone'		=> '',
-						'language'		=> $server->language,
-						'region'		=> $server->region,
-					);
-				}
-			}
-
-			// cleanup memory
-			$swtor_html->clear();
 			return $servers;
 		}
 
@@ -315,9 +295,7 @@ if (!class_exists('swtor_realmstatus')){
 			// return pvp status
 			$language = strtolower($server_language);
 			switch ($language){
-				case 'german':	return 'de';
-				case 'english':	return 'gb';
-				case 'french':	return 'fr';
+				case 'eu':	return 'eu';
 				case 'us':		return 'us';
 			}
 			return '';
