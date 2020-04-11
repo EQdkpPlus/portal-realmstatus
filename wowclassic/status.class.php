@@ -127,18 +127,18 @@ if (!class_exists('wowclassic_realmstatus')){
 				$strRealmLocation = $this->config->get('uc_server_loc');
 				
 				switch($strRealmLocation){
-					case 'us':  $strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-us"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"b668cd9bb522d534eb99fcacc46ccbe3824b98dc10b61a08d4ae149bee9caa70"}}}';
-						break;
-						
-					case 'kr':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-kr"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"b668cd9bb522d534eb99fcacc46ccbe3824b98dc10b61a08d4ae149bee9caa70"}}}';
-						break;
-						
-					case 'tw':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"tw"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"b668cd9bb522d534eb99fcacc46ccbe3824b98dc10b61a08d4ae149bee9caa70"}}}';
-						break;
+					case 'us':  $strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-us"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c40d282bc48d4d686417f39ba896174eea212d3b86ba8bacd6cdf452b9111554"}}}';
+					break;
+					
+					case 'kr':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-kr"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c40d282bc48d4d686417f39ba896174eea212d3b86ba8bacd6cdf452b9111554"}}}';
+					break;
+					
+					case 'tw':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-tw"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c40d282bc48d4d686417f39ba896174eea212d3b86ba8bacd6cdf452b9111554"}}}';
+					break;
 					
 					default:
-					case 'eu': $strData = '{"operationName":"GetInitialRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-eu"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"7b3ba73c1458c52eec129aaf0c64d8be62f5496754f1143f8147da317fdd2417"}}}';
-						break;
+					case 'eu': $strData = '{"operationName":"GetInitialRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-eu"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"9c7cc66367037fda3007b7f592201c2610edb2c9a9292975cd131a37bbe61930"}}}';
+					break;
 				}
 				
 				
