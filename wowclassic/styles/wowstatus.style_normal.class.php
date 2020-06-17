@@ -50,7 +50,7 @@ if (!class_exists("wowstatus_style_normal"))
       parent::__construct();
 
       // set image path
-      $this->image_path = $this->env->link.'portal/realmstatus/wow/images/normal/';
+      $this->image_path = $this->env->link.'portal/realmstatus/wowclassic/images/normal/';
     }
 
     /**
@@ -74,12 +74,12 @@ if (!class_exists("wowstatus_style_normal"))
           // set "tr" div
           $output .= '<div class="tr">';
           // output status
-          switch ((int)$realmdata['status'])
+          switch ($realmdata['status'])
           {
-            case 1:
+            case 'up':
               $output .= '<div class="td" style="width: 28px;"><i class="fa fa-lg fa-check-circle" style="color: green; font-size: 32px;"></i></div>';
               break;
-            case 0:
+            case 'down':
               $output .= '<div class="td" style="width: 28px;"><i class="fa fa-lg fa-times-circle" style="color: red; font-size: 32px;"></i></div>';
               break;
             default:
@@ -93,7 +93,7 @@ if (!class_exists("wowstatus_style_normal"))
           // output server type
           switch (strtolower($realmdata['type']))
           {
-            case 'roleplaying':
+            case 'rp':
               $output .= 'RP';
               break;
             case 'pvp':

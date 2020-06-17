@@ -70,9 +70,9 @@ if (!class_exists('wow_realmstatus')){
 
 			// get status of realm
 			if (is_array($realmdata) && isset($realmdata['status'])){
-				switch (intval($realmdata['status'])){
-					case 0:	return 'down';		break;
-					case 1:	return 'up';		break;
+				switch ($realmdata['status']){
+					case 'down':	return 'down';		break;
+					case 'up':	return 'up';		break;
 					default:	return 'unknown';	break;
 				}
 			}
@@ -125,16 +125,27 @@ if (!class_exists('wow_realmstatus')){
 			$name = str_replace(array('\'', ' '), array('', '-'), $name);
 
 			// get the cached (do not force) realm data for this realm
-			$realmdata = $this->game->obj['armory']->realm(array(unsanitize($name)), false);
-
-			// the data are returned as array with
-			// 'realms' => array(array(type, queue, status, population, name, slug))
-
-			// if array contains more than 1 realm, the realm is unknown and all realms are returned
-			// by the API, so ignore them
-			if (is_array($realmdata) && isset($realmdata['realms']) && is_array($realmdata['realms']) && count($realmdata['realms']) == 1){
-				// extract the realm data for this realm
-				return $realmdata['realms'][0];
+			$objArmory =  $this->game->obj['armory'];
+			if(is_object($objArmory)){
+				$realmSlug = $objArmory->createSlug($name);
+				$realmdata = $this->game->obj['armory']->realm($realmSlug, false);
+				if(isset($realmdata['id'])){
+					$strConnectedRealm = $realmdata['connected_realm']['href'];
+					$output_array = array();
+					preg_match('/\/([0-9]+)\?/', $strConnectedRealm, $output_array);
+					$intConnectedRealm = $output_array[1];
+					$connectedRealmData = $this->game->obj['armory']->connectedRealms($intConnectedRealm, false);
+					if($connectedRealmData && isset($connectedRealmData['population'])){
+						return array(
+								'type'			=> utf8_strtolower($connectedRealmData['realms'][0]['type']['type']),
+								'queue'			=> '',
+								'status'		=> utf8_strtolower($connectedRealmData['status']['type']),
+								'population'	=> utf8_strtolower($connectedRealmData['population']['type']),
+								'name'			=> $connectedRealmData['realms'][0]['name'],
+								'slug'			=> utf8_strtolower($connectedRealmData['realms'][0]['slug']),
+						);
+					}
+				}
 			}
 
 			// return as unknown

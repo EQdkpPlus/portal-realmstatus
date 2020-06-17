@@ -28,163 +28,166 @@ if (!class_exists('mmo_realmstatus')){
 }
 
 /*+----------------------------------------------------------------------------
-  | wow_realmstatus
-  +--------------------------------------------------------------------------*/
+ | wowclassic_realmstatus
+ +--------------------------------------------------------------------------*/
 if (!class_exists('wowclassic_realmstatus')){
 	class wowclassic_realmstatus extends mmo_realmstatus{
-
+		
 		/* Game name */
 		protected $game_name = 'wowclassic';
-
+		
 		/* The style for output */
 		private $style;
-	
+		
 		protected $moduleID = 0;
 		
-		/* cache time in seconds default 10 minutes = 600 seconds */
-		private $cachetime = 600;
-
 		/**
-		* Constructor
-		*/
+		 * Constructor
+		 */
 		public function __construct($moduleID){
 			$this->moduleID = $moduleID;
-
+			
 			// call base constructor
 			parent::__construct();
-
+			
+			// init armory
+			$this->initArmory();
+			
 			// init the styles class
 			$this->initStyle();
 		}
-
+		
 		/**
-		* checkServer
-		* Check if specified server is up/down/unknown
-		*
-		* @param  string  $servername  Name of server to check
-		*
-		* @return string ('up', 'down', 'unknown')
-		*/
+		 * checkServer
+		 * Check if specified server is up/down/unknown
+		 *
+		 * @param  string  $servername  Name of server to check
+		 *
+		 * @return string ('up', 'down', 'unknown')
+		 */
 		public function checkServer($servername){
-			// try to load xml string from cache
-			$status = $this->pdc->get('portal.module.realmstatus.wowclassic.'.$servername, false, true);
-			if ($status === null){
-				// none in cache or outdated, load from website
-				$status = $this->loadStatus($servername);
-				if ($status !== false){
-					// store loaded data within cache
-					$this->pdc->put('portal.module.realmstatus.wowclassic.'.$servername, $status, $this->cachetime, false, true);
-				}else{
-					$status = 'unknown';
+			$realmdata = $this->getRealmData($servername);
+			
+			// get status of realm
+			if (is_array($realmdata) && isset($realmdata['status'])){
+				switch ($realmdata['status']){
+					case 'down':	return 'down';		break;
+					case 'up':	return 'up';		break;
+					default:	return 'unknown';	break;
 				}
 			}
-			return $status;
+			return 'unknown';
 		}
-
+		
 		/**
-		* getOutput
-		* Get the portal output for all servers
-		*
-		* @param  array  $servers  Array of server names
-		*
-		* @return string
-		*/
+		 * getOutput
+		 * Get the portal output for all servers
+		 *
+		 * @param  array  $servers  Array of server names
+		 *
+		 * @return string
+		 */
 		protected function getOutput($servers){
 			// get realms array
 			$realms = array();
 			foreach ($servers as $realm){
 				$realm = trim($realm);
 				$realm = html_entity_decode($realm, ENT_QUOTES);
-				$realmdata = $this->loadStatus($realm);
+				$realmdata = $this->getRealmData($realm);
 				$realms[$realm] = $realmdata;
 			}
-
+			
 			// get output from style
 			$output = $this->style->output($realms);
 			return $output;
 		}
-
+		
 		/**
-		* outputCSS
-		* Output CSS
-		*/
+		 * outputCSS
+		 * Output CSS
+		 */
 		protected function outputCSS(){
 			$this->style->outputCssStyle();
 		}
-
 		
 		/**
-		 * loadStatus
-		 * Load status from either the pdc or from codemasters website
+		 * getRealmData
+		 * Get the realm data for the specified realm
 		 *
-		 * @param  string  $servername  Name of server to check
+		 * @param  string  $realmname  Name of the realm
 		 *
-		 * @return string ('up', 'down', 'unknown')
+		 * @return array(type, queue, status, population, name, slug)
 		 */
-		private function loadStatus($servername){
-			$arrRealms = $this->pdc->get('portal.module.realmstatus.wowclassic.json', false, true);
-			if ($arrRealms === null){
-				$strRealmLocation = $this->config->get('uc_server_loc');
+		private function getRealmData($realmname){
+			// convert the realm name to the API specific handling
+			$name = trim($realmname);
+			$name = unsanitize($name);
+			
+			
+			// get the cached (do not force) realm data for this realm
+			$objArmory =  $this->game->obj['armory'];
+			if(is_object($objArmory)){
+				$objArmory->setSettings(array('client_id' => $this->config->get('game_importer_clientid'), 'client_secret' => $this->config->get('game_importer_clientsecret')));
+				$realmSlug = $objArmory->createSlug($name);
+				$realmdata = $this->game->obj['armory']->realm($realmSlug, false);
 				
-				switch($strRealmLocation){
-					case 'us':  $strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-us"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c40d282bc48d4d686417f39ba896174eea212d3b86ba8bacd6cdf452b9111554"}}}';
-					break;
-					
-					case 'kr':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-kr"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c40d282bc48d4d686417f39ba896174eea212d3b86ba8bacd6cdf452b9111554"}}}';
-					break;
-					
-					case 'tw':	$strData = '{"operationName":"GetRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-tw"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c40d282bc48d4d686417f39ba896174eea212d3b86ba8bacd6cdf452b9111554"}}}';
-					break;
-					
-					default:
-					case 'eu': $strData = '{"operationName":"GetInitialRealmStatusData","variables":{"input":{"compoundRegionGameVersionSlug":"classic-eu"}},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"9c7cc66367037fda3007b7f592201c2610edb2c9a9292975cd131a37bbe61930"}}}';
-					break;
-				}
-				
-				
-				
-				$mixResult = register('urlfetcher')->post('https://worldofwarcraft.com/graphql', $strData, 'application/json');
-				
-				if($mixResult){
-					$arrJson = json_decode($mixResult, true);
-					$arrRealms = $arrJson['data']['Realms'];
-					
-					$this->pdc->put('portal.module.realmstatus.wowclassic.json', $arrRealms, $this->cachetime, false, true);
+				if(isset($realmdata['id'])){
+					$strConnectedRealm = $realmdata['connected_realm']['href'];
+					$output_array = array();
+					preg_match('/\/([0-9]+)\?/', $strConnectedRealm, $output_array);
+					$intConnectedRealm = $output_array[1];
+					$connectedRealmData = $this->game->obj['armory']->connectedRealms($intConnectedRealm, false);
+					if($connectedRealmData && isset($connectedRealmData['population'])){
+						return array(
+								'type'			=> utf8_strtolower($connectedRealmData['realms'][0]['type']['type']),
+								'queue'			=> '',
+								'status'		=> utf8_strtolower($connectedRealmData['status']['type']),
+								'population'	=> utf8_strtolower($connectedRealmData['population']['type']),
+								'name'			=> $connectedRealmData['realms'][0]['name'],
+								'slug'			=> utf8_strtolower($connectedRealmData['realms'][0]['slug']),
+						);
+					}
 				}
 			}
 			
-			foreach($arrRealms as $arrRealmData){
-				if($arrRealmData['name'] == $servername){
-					return array(
-							'type'			=> ($arrRealmData['type']['slug'] == 'rp') ? 'roleplaying' : $arrRealmData['type']['slug'],
-							'queue'			=> '',
-							'status'		=> $arrRealmData['online'],
-							'population'	=> (strlen($arrRealmData['population']['slug'])) ? $arrRealmData['population']['slug'] : 'unknown',
-							'name'			=> $servername,
-							'slug'			=> $arrRealmData['slug'],
-					);
-				}
-			}
-			
+			// return as unknown
 			return array(
 					'type'			=> 'error',
 					'queue'			=> '',
 					'status'		=> -1,
 					'population'	=> 'error',
-					'name'			=> $servername,
-					'slug'			=> $servername,
+					'name'			=> $realmname,
+					'slug'			=> $name,
 			);
 		}
-
+		
 		/**
-		* initStyle
-		* Initialize the styles classes
-		*/
+		 * initArmory
+		 * Initialize the Armory access
+		 */
+		private function initArmory(){
+			// init the Battle.net armory object
+			$serverLoc = $this->config->get('uc_server_loc') ? $this->config->get('uc_server_loc') : 'eu';
+			$this->game->new_object('bnet_armory', 'armory', array($serverLoc, $this->config->get('uc_data_lang')));
+		}
+		
+		/**
+		 * initStyle
+		 * Initialize the styles classes
+		 */
 		private function initStyle(){
 			$file_style_normal = $this->root_path.'portal/realmstatus/wowclassic/styles/wowstatus.style_normal.class.php';
+			$file_style_gdi    = $this->root_path.'portal/realmstatus/wowclassic/styles/wowstatus.style_gdi.class.php';
+			
+			// include the files
 			include_once($file_style_normal);
-
-			$this->style = registry::register('wowstatus_style_normal');
+			include_once($file_style_gdi);
+			
+			// get class
+			if ($this->config->get('gd', 'pmod_'.$this->moduleID))
+				$this->style = registry::register('wowstatus_style_gdi');
+				else
+					$this->style = registry::register('wowstatus_style_normal');
 		}
 	}
 }

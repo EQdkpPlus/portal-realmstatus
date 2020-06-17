@@ -28,7 +28,7 @@ if (!defined('EQDKP_INC'))
 
 if (!class_exists('wowstatus_style_base'))
 {
-  include_once(registry::get_const('root_path').'portal/realmstatus/wow/styles/wowstatus.style_base.class.php');
+  include_once(registry::get_const('root_path').'portal/realmstatus/wowclassic/styles/wowstatus.style_base.class.php');
 }
 
 /*+----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ if (!class_exists("wowstatus_style_gdi"))
       parent::__construct();
 
       // set image path
-      $this->image_path = $this->root_path.'portal/realmstatus/wow/images/gdi/';
+      $this->image_path = $this->root_path.'portal/realmstatus/wowclassic/images/gdi/';
     }
 
     /**
@@ -147,34 +147,33 @@ if (!class_exists("wowstatus_style_gdi"))
      */
     private function createImage($realmname, $realmdata)
     {
-
       // get status
-      switch ((int)$realmdata['status'])
+      switch ($realmdata['status'])
       {
-        case 0:  $status = 'down';    break;
-        case 1:  $status = 'up';      break;
+        case 'up':  $status = 'up';    break;
+        case 'down':  $status = 'down';      break;
         default: $status = 'unknown'; break;
       }
 
       // get population
       // TODO: check if offline is available
-      if ($status == 'down')
+      if ($status == 'down') {
         $population = 'offline';
-        else {
+      } else {
         	switch (strtolower($realmdata['population']))
         	{
         		case 'full':  $population = 'max';    break;
+        		case 'locked':  $population = 'max';    break;
         		case 'high':  $population = 'high';    break;
         		case 'medium':  $population = 'medium';    break;
         		case 'low':  $population = 'low';    break;
         	}
         }
 
-
       // get type
       switch (strtolower($realmdata['type']))
       {
-        case 'roleplaying':    $type = 'RP';     break;
+        case 'rp':    $type = 'RP';     break;
         default:      $type = '';       break;
       }
 
