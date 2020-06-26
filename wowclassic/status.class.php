@@ -128,8 +128,8 @@ if (!class_exists('wowclassic_realmstatus')){
 			$objArmory =  $this->game->obj['armory'];
 			if(is_object($objArmory)){
 				$objArmory->setSettings(array('client_id' => $this->config->get('game_importer_clientid'), 'client_secret' => $this->config->get('game_importer_clientsecret')));
-				$realmSlug = $objArmory->createSlug($name);
-				$realmdata = $this->game->obj['armory']->realm($realmSlug, false);
+
+				$realmdata = $this->game->obj['armory']->realm($name, false);
 				
 				if(isset($realmdata['id'])){
 					$strConnectedRealm = $realmdata['connected_realm']['href'];

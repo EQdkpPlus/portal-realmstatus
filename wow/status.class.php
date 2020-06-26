@@ -121,14 +121,13 @@ if (!class_exists('wow_realmstatus')){
 		private function getRealmData($realmname){
 			// convert the realm name to the API specific handling
 			$name = trim($realmname);
-			$name = strtolower($name);
-			$name = str_replace(array('\'', ' '), array('', '-'), $name);
-
+			$name = unsanitize($name);
+			
 			// get the cached (do not force) realm data for this realm
 			$objArmory =  $this->game->obj['armory'];
 			if(is_object($objArmory)){
-				$realmSlug = $objArmory->createSlug($name);
-				$realmdata = $this->game->obj['armory']->realm($realmSlug, false);
+
+				$realmdata = $this->game->obj['armory']->realm($name, false);
 				if(isset($realmdata['id'])){
 					$strConnectedRealm = $realmdata['connected_realm']['href'];
 					$output_array = array();
